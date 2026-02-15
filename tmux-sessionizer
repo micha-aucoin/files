@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+selected=$(
+	{
+	find ~/Documents -mindepth 0 -maxdepth 2 -type d
+	find ~/.config -mindepth 0 -maxdepth 0 -type d
+	find ~/.vim -mindepth 0 -maxdepth 0 -type l
+	find ~/files -mindepth 0 -maxdepth 0 -type d
+	find ~ -mindepth 0 -maxdepth 0 -type d
+	} | fzf
+)
+
+
+# if selected var is empty then exit
+[ -z "$selected" ] && exit 0
+
+
+# replace "." with "_"
+selected_name=$(basename "$selected" | tr . _)
+
+
+# Inside tmux: if TMUX var is not empty
+if [[ -n $TMUX ]]; then
+	if ! tmux has-session -t="$selected_name" 2>/dev/null; then
+		# create detached tmux session
+		tmux new-session -ds "$selected_name" -c "$selected"
+	fi
+	# switch to tmux session
+	tmux switch-client -t "$selected_name"
+
+# Outside tmux:
+else
+	if tmux has-session -t="$selected_name" 2>/dev/null; then
+		# attach to tmux session
+		tmux attach -t "$selected_name"
+	else
+		# create new tmux session
+		tmux new-session -s "$selected_name" -c "$selected"
+	fi
+fi

@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+file="$1"
+
+# Check argument provided
+if [[ -z "$file" ]]; then
+  echo "Error: no file provided" >&2
+  exit 1
+fi
+
+# Check file exists
+if [[ ! -e "$file" ]]; then
+  echo "Error: file does not exist: $file" >&2
+  exit 1
+fi
+
+# Check it's a regular file
+if [[ ! -f "$file" ]]; then
+  echo "Error: not a regular file: $file" >&2
+  exit 1
+fi
+
+# Check executable permission
+if [[ ! -x "$file" ]]; then
+  echo "Error: file is not executable: $file" >&2
+  exit 1
+fi
+
+pytrace2qf()
+{
+	local file lnum msg
+	while IFS= read -r line; do
+		[[ -z "$file" ]] && file=$(sed -nE 's/.*File "(.*)", line [0-9]*.*/\1/p' <<<"$line")
+		[[ -z "$lnum" ]] && lnum=$(sed -nE 's/.*File ".*", line ([0-9]*).*/\1/p' <<<"$line")
+		[[ -z "$msg" ]]  && msg=$(sed -nE 's/(.*TypeError:.*)/\1/p' <<<"$line")
+	done
+	printf "%s:%s: %s\n" "$file" "$lnum" "$msg"
+}
+
+# Run it and normalize output
+"$file" 2>&1 | pytrace2qf
+
