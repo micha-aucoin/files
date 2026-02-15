@@ -38,5 +38,13 @@ pytrace2qf()
 }
 
 # Run it and normalize output
-"$file" 2>&1 | pytrace2qf
+output=$("$file" 2>&1)
+rc=$?
+
+if (( rc != 0 )); then
+	echo "$output" | pytrace2qf
+	exit "$rc"
+else
+	echo "$output"
+fi
 
