@@ -32,10 +32,24 @@ pytrace2qf()
 	while IFS= read -r line; do
 		[[ -z "$file" ]] && file=$(sed -nE 's/.*File "(.*)", line [0-9]*.*/\1/p' <<<"$line")
 		[[ -z "$lnum" ]] && lnum=$(sed -nE 's/.*File ".*", line ([0-9]*).*/\1/p' <<<"$line")
-		[[ -z "$msg" ]]  && msg=$(sed -nE 's/(.*TypeError:.*)/\1/p' <<<"$line")
+		[[ -z "$msg" ]]  && msg=$(sed -nE 's/(.*Error: .*)/\1/p' <<<"$line")
 	done
 	printf "%s:%s: %s\n" "$file" "$lnum" "$msg"
 }
+
+_test()
+{
+	cat <<-EOF
+
+		 File "lab/bookbot/./main.py", line 30
+		    print(af"--- Begin report of {book_path} ---")
+		            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		SyntaxError: invalid syntax
+	EOF
+
+}
+# _test | pytrace2qf
+
 
 # Run it and normalize output
 output=$("$file" 2>&1)
