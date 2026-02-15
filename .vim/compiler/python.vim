@@ -1,3 +1,4 @@
+" view other compliers with ls -l /usr/share/vim/vim91/compiler/ | grep py
 " avoid loading twice
 if exists("current_compiler")
 	finish

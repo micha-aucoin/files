@@ -26,15 +26,19 @@ nnoremap N Nzzzv
 xnoremap <leader>p "_dP
 nnoremap <leader>p "+p
 vnoremap <leader>y "+y
+" ^ system clipboard
 
+" Move text in visual mode
 vnoremap J :m '>+1<CR>gv=gv
 vnoremap K :m '<-2<CR>gv=gv
 vnoremap H <gv
 vnoremap L >gv
 
 nnoremap <C-f> :silent !tmux-sessionizer<CR>:redraw!<CR>
-
+nnoremap <leader>m :silent! make \| redraw! \| copen<CR>
 nnoremap <leader><leader> :r ! 
+"nnoremap <leader>gd :new<CR>:setlocal filetype=diff<CR>:r !git diff<CR>
+nnoremap <leader>gd :new<CR>:setlocal buftype=nofile bufhidden=wipe noswapfile filetype=diff<CR>:r !git diff \| awk '/^diff --git/ {print "========================================"} {print}'<CR>:0d_<CR>
 
 " Find and Replace
 nnoremap <leader>s :%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>
@@ -42,6 +46,7 @@ nnoremap <leader>s :%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>
 vnoremap <leader>g y:vimgrep /\<\V<C-r>"\m\>/gj **/*<CR>:copen<CR>
 nnoremap <leader>g :vimgrep /\<\>/gj **/*<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
 
+" QuickFix List
 function! ToggleQuickfix()
 	for win in range(1, winnr('$'))
 		if getwinvar(win, '&buftype') ==# 'quickfix'
